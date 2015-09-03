@@ -27,10 +27,9 @@ public class ArticleClient {
         putObject(name, article, ARTICLES);
     }
 
-    public void putImage(String name, String article) {
-        putObject(name, article, ARTICLES);
+    public void putImage(String name, File file) {
+        s3client.putObject(new PutObjectRequest(BUCKET_NAME, IMAGES + "/" + name, file));
     }
-
 
     public List<String> getArticleNames() {
         return getObjectNames(ARTICLES);
@@ -69,10 +68,6 @@ public class ArticleClient {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void putImage(String name, File file) {
-        s3client.putObject(new PutObjectRequest(BUCKET_NAME, IMAGES + "/" + name, file));
     }
 
     private List<String> getObjectNames(String folder) {
