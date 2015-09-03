@@ -8,10 +8,9 @@ import com.amazonaws.util.StringInputStream;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Closeables;
+import com.google.gson.Gson;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -27,6 +26,11 @@ public class ArticleClient {
     public void putArticle(String name, String article) {
         putObject(name, article, ARTICLES);
     }
+
+    public void putImage(String name, String article) {
+        putObject(name, article, ARTICLES);
+    }
+
 
     public List<String> getArticleNames() {
         return getObjectNames(ARTICLES);
@@ -67,6 +71,10 @@ public class ArticleClient {
         }
     }
 
+    private void putImage(String name, File file) {
+        s3client.putObject(new PutObjectRequest(BUCKET_NAME, IMAGES + "/" + name, file));
+    }
+
     private List<String> getObjectNames(String folder) {
         List<String> list = new ArrayList<>();
         ObjectListing objects = s3client.listObjects(BUCKET_NAME, folder + "/");
@@ -81,6 +89,7 @@ public class ArticleClient {
     public static void main(String[] args) {
         ArticleClient client = new ArticleClient();
         client.putArticle("test-article-3", "some-content");
+        client.putImage("test-image-1", new File("/tmp/test-image.jpeg"));
         List<String> articles = client.getArticleNames();
 
         for (String articleName: articles) {
@@ -88,5 +97,10 @@ public class ArticleClient {
         }
 
         System.out.println(client.getArticle("README.md"));
+
+        Gson gson = new Gson();
+        Object o = gson.fromJson("[{\"aa\":\"\b\"}]", List.class);
+        System.out.println(o.getClass().getName());
+        System.out.println(((List) o).get(0).getClass().getName());
     }
 }
